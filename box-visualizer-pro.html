@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DHL Box Size Visualizer Pro</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			background: #FFCC00; /* DHL Yellow */
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		
+		.app-container {
+			background: white;
+			border-radius: 20px;
+			padding: 60px;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+			text-align: center;
+			max-width: 600px;
+		}
+		
+		h1 {
+			font-size: 36px;
+			color: #333;
+			margin-bottom: 15px;
+		}
+		
+		.dhl-logo {
+			font-size: 48px;
+			font-weight: bold;
+			color: #FFCC00;
+			text-shadow: 2px 2px 0 #CC0000;
+			margin-bottom: 10px;
+		}
+		
+		.subtitle {
+			color: #666;
+			font-size: 18px;
+			margin-bottom: 30px;
+		}
+		
+		.features {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 15px;
+			margin-bottom: 30px;
+			text-align: left;
+		}
+		
+		.feature-tag {
+			background: #fff3cd;
+			padding: 10px 15px;
+			border-radius: 8px;
+			font-size: 13px;
+			color: #856404;
+			font-weight: 500;
+			border: 1px solid #FFCC00;
+		}
+		
+		.button-group {
+			display: flex;
+			gap: 15px;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+		
+		.btn-primary {
+			background: #CC0000; /* DHL Red */
+			color: white;
+			border: none;
+			padding: 18px 40px;
+			font-size: 18px;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4);
+			font-weight: bold;
+		}
+		
+		.btn-secondary {
+			background: white;
+			color: #CC0000;
+			border: 2px solid #CC0000;
+			padding: 16px 35px;
+			font-size: 18px;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			font-weight: bold;
+		}
+		
+		.btn-secondary:hover {
+			background: #CC0000;
+			color: white;
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(204, 0, 0, 0.3);
+		}
+		
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(204, 0, 0, 0.6);
+			background: #D50000;
+		}
+		
+		.modal {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0,0,0,0.8);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+		}
+		
+		.modal.active {
+			display: flex;
+		}
+		
+		.modal-content {
+			background: white;
+			border-radius: 20px;
+			width: 90%;
+			max-width: 1400px;
+			height: 90vh;
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			animation: modalSlideIn 0.3s ease-out;
+		}
+		
+		@keyframes modalSlideIn {
+			from {
+				opacity: 0;
+				transform: translateY(30px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+		
+		.modal-header {
+			padding: 25px 30px;
+			border-bottom: 2px solid #FFCC00;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: linear-gradient(to right, #FFCC00, #fff);
+		}
+		
+		.modal-header h2 {
+			font-size: 24px;
+			color: #CC0000;
+			font-weight: bold;
+		}
+		
+		.close-btn {
+			background: #CC0000;
+			border: none;
+			font-size: 24px;
+			color: white;
+			cursor: pointer;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			transition: all 0.3s;
+			font-weight: bold;
+		}
+		
+		.close-btn:hover {
+			background: #990000;
+			transform: scale(1.1);
+		}
+		
+		.modal-body {
+			flex: 1;
+			display: flex;
+			overflow: hidden;
+		}
+		
+		.controls-panel {
+			width: 320px;
+			padding: 30px;
+			background: #f9f9f9;
+			overflow-y: auto;
+			border-right: 2px solid #FFCC00;
+		}
+		
+		.control-group {
+			margin-bottom: 30px;
+		}
+		
+		.control-group label {
+			display: block;
+			font-weight: 600;
+			margin-bottom: 12px;
+			color: #CC0000;
+			font-size: 14px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		
+		.box-option {
+			background: white;
+			border: 2px solid #e0e0e0;
+			border-radius: 12px;
+			padding: 15px;
+			margin-bottom: 12px;
+			cursor: pointer;
+			transition: all 0.3s;
+			position: relative;
+			overflow: hidden;
+		}
+		
+		.box-option::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 4px;
+			height: 100%;
+			background: #FFCC00;
+			transform: scaleY(0);
+			transition: transform 0.3s;
+		}
+		
+		.box-option:hover {
+			border-color: #FFCC00;
+			transform: translateX(5px);
+		}
+		
+		.box-option.active {
+			border-color: #CC0000;
+			background: #fff3cd;
+		}
+		
+		.box-option.active::before {
+			transform: scaleY(1);
+			background: #CC0000;
+		}
+		
+		.box-option h4 {
+			font-size: 15px;
+			color: #333;
+			margin-bottom: 6px;
+		}
+		
+		.box-option p {
+			font-size: 13px;
+			color: #666;
+			margin: 0;
+		}
+		
+		.box-option .volume {
+			font-size: 11px;
+			color: #999;
+			margin-top: 4px;
+		}
+		
+		.toggle-group {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+		
+		.toggle-btn {
+			background: white;
+			border: 2px solid #e0e0e0;
+			padding: 10px 18px;
+			border-radius: 20px;
+			cursor: pointer;
+			font-size: 13px;
+			transition: all 0.3s;
+			font-weight: 500;
+		}
+		
+		.toggle-btn:hover {
+			border-color: #FFCC00;
+			transform: translateY(-2px);
+		}
+		
+		.toggle-btn.active {
+			background: #CC0000;
+			color: white;
+			border-color: #CC0000;
+		}
+		
+		.view-controls {
+			display: flex;
+			gap: 10px;
+			margin-top: 12px;
+		}
+		
+		.view-btn {
+			flex: 1;
+			background: white;
+			border: 2px solid #e0e0e0;
+			padding: 10px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 12px;
+			transition: all 0.3s;
+			font-weight: 500;
+		}
+		
+		.view-btn:hover {
+			border-color: #FFCC00;
+		}
+		
+		.view-btn.active {
+			background: #CC0000;
+			color: white;
+			border-color: #CC0000;
+		}
+		
+		.canvas-container {
+			flex: 1;
+			position: relative;
+			background: linear-gradient(to bottom, #f5f5f5 0%, #ffffff 100%);
+		}
+		
+		#visualizer-canvas {
+			width: 100%;
+			height: 100%;
+			display: block;
+		}
+		
+		.instructions {
+			position: absolute;
+			bottom: 20px;
+			left: 20px;
+			background: rgba(0,0,0,0.85);
+			color: white;
+			padding: 18px 22px;
+			border-radius: 12px;
+			font-size: 13px;
+			max-width: 320px;
+			backdrop-filter: blur(10px);
+			border-left: 4px solid #FFCC00;
+		}
+		
+		.instructions strong {
+			display: block;
+			margin-bottom: 10px;
+			color: #FFCC00;
+			font-size: 14px;
+		}
+		
+		.instructions div {
+			margin-bottom: 6px;
+			line-height: 1.6;
+		}
+		
+		.size-info {
+			background: white;
+			border-radius: 10px;
+			padding: 15px;
+			margin-top: 20px;
+			border: 2px solid #FFCC00;
+		}
+		
+		.size-info h4 {
+			font-size: 13px;
+			color: #CC0000;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			font-weight: bold;
+		}
+		
+		.size-stat {
+			display: flex;
+			justify-content: space-between;
+			padding: 6px 0;
+			font-size: 12px;
+			border-bottom: 1px solid #f5f5f5;
+		}
+		
+		.size-stat:last-child {
+			border-bottom: none;
+		}
+		
+		.size-stat span:first-child {
+			color: #666;
+		}
+		
+		.size-stat span:last-child {
+			font-weight: 600;
+			color: #333;
+		}
+	</style>
+</head>
+<body>
+	<div class="app-container">
+		<div class="dhl-logo">DHL</div>
+		<h1>📦 Box Size Visualizer Pro</h1>
+		<p class="subtitle">Professional 3D shipping box comparison with real-world scale</p>
+		
+		<div class="features">
+			<div class="feature-tag">✅ Exact DHL Specs</div>
+			<div class="feature-tag">📏 Real Measurements</div>
+			<div class="feature-tag">🎨 Realistic Materials</div>
+			<div class="feature-tag">🔄 Interactive 3D</div>
+		</div>
+		
+		<button class="btn-primary" id="openVisualizerBtn">
+			Launch 3D Visualizer →
+		</button>
+	</div>
+
+	<div class="modal" id="visualizerModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>📦 DHL 3D Box Size Comparison</h2>
+				<button class="close-btn" id="closeModalBtn">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="controls-panel">
+					<div class="control-group">
+						<label>📦 Select Box Type</label>
+						<div id="boxOptions"></div>
+					</div>
+					
+					<div class="control-group">
+						<label>📱 Reference Objects</label>
+						<div class="toggle-group" id="referenceToggles"></div>
+					</div>
+					
+					<div class="control-group">
+						<label>👁️ Camera View</label>
+						<div class="view-controls">
+							<button class="view-btn active" data-view="perspective">Perspective</button>
+							<button class="view-btn" data-view="top">Top View</button>
+							<button class="view-btn" data-view="front">Front</button>
+						</div>
+					</div>
+					
+					<div class="control-group">
+						<label>🎮 Animation Controls</label>
+						<div class="view-controls">
+							<button class="view-btn" id="toggleRotationBtn">⏸️ Pause Rotation</button>
+							<button class="view-btn" id="toggleDragBtn">🖱️ Drag Objects</button>
+						</div>
+					</div>
+					
+					<div class="size-info" id="sizeInfo"></div>
+				</div>
+				<div class="canvas-container">
+					<canvas id="visualizer-canvas"></canvas>
+					<div class="instructions">
+						<strong>🖱️ Interactive Controls</strong>
+						<div><b>Camera Rotate:</b> Left-click + drag</div>
+						<div><b>Zoom:</b> Scroll wheel</div>
+						<div><b>Pan:</b> Right-click + drag</div>
+						<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
+							<b>Toggle drag mode</b> to move objects!
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			
+			// EXACT DHL PROJECT BOX SPECIFICATIONS
+			const BOX_TYPES = [
+				{ 
+					id: 'a4', 
+					name: 'A4 Envelope', 
+					width: 32, 
+					height: 24, 
+					depth: 1, 
+					color: 0xFFCC00,
+					cardboardColor: 0xD4A574,
+					description: 'Perfect for documents and thin items'
+				},
+				{ 
+					id: 'book', 
+					name: 'Book Box', 
+					width: 23, 
+					height: 14, 
+					depth: 4, 
+					color: 0xCC0000,
+					cardboardColor: 0xC19A6B,
+					description: 'Ideal for books and small electronics'
+				},
+				{ 
+					id: 'shoe', 
+					name: 'Shoe Box', 
+					width: 35, 
+					height: 20, 
+					depth: 15, 
+					color: 0xFFCC00,
+					cardboardColor: 0xD2B48C,
+					description: 'Standard footwear packaging'
+				},
+				{ 
+					id: 'moving', 
+					name: 'Moving Box', 
+					width: 75, 
+					height: 35, 
+					depth: 35, 
+					color: 0xCC0000,
+					cardboardColor: 0xC8A882,
+					description: 'Large items and household goods'
+				}
+			];
+
+			// ULTRA-REALISTIC REFERENCE OBJECTS with photorealistic materials
+			const REFERENCE_OBJECTS = [
+				{ 
+					id: 'iphone', 
+					name: 'iPhone 15 Pro', 
+					width: 7.09, 
+					height: 14.67, 
+					depth: 0.83, 
+					color: 0x1d1d1f,
+					metalness: 0.95,
+					roughness: 0.15,
+					label: '📱',
+					hasScreen: true,
+					hasCamera: true,
+					hasDynamicIsland: true,
+					bodyMaterial: 'titanium',
+					envMapIntensity: 1.5
+				},
+				{ 
+					id: 'laptop', 
+					name: 'MacBook Pro 14"', 
+					width: 31.26, 
+					height: 22.12, 
+					depth: 1.55, 
+					color: 0x4a4a4a,
+					metalness: 0.9,
+					roughness: 0.2,
+					label: '💻',
+					hasScreen: true,
+					hasKeyboard: true,
+					hasAppleLogo: true,
+					bodyMaterial: 'aluminum',
+					envMapIntensity: 1.2
+				},
+				{ 
+					id: 'book', 
+					name: 'Hardcover Book', 
+					width: 15.5, 
+					height: 23.5, 
+					depth: 2.8, 
+					color: 0x8B0000,
+					metalness: 0.0,
+					roughness: 0.95,
+					label: '📚',
+					hasPages: true,
+					hasSpine: true,
+					bodyMaterial: 'fabric'
+				},
+				{ 
+					id: 'tablet', 
+					name: 'iPad Pro 11"', 
+					width: 17.79, 
+					height: 24.76, 
+					depth: 0.59, 
+					color: 0xbec0c2,
+					metalness: 0.9,
+					roughness: 0.2,
+					label: '📱',
+					hasScreen: true,
+					hasAppleLogo: true,
+					bodyMaterial: 'aluminum',
+					envMapIntensity: 1.3
+				},
+				{ 
+					id: 'bottle', 
+					name: 'Water Bottle', 
+					width: 7.5, 
+					height: 28, 
+					depth: 7.5, 
+					color: 0x4169E1,
+					metalness: 0.0,
+					roughness: 0.1,
+					label: '🧴',
+					cylindrical: true,
+					transparent: true,
+					opacity: 0.4,
+					bodyMaterial: 'plastic'
+				}
+			];
+
+			let selectedBoxId = 'shoe';
+			let activeReferences = new Set(['iphone', 'laptop']);
+			let scene, camera, renderer;
+			let currentBox = null;
+			let referenceObjects = {};
+			let isRotationEnabled = true;
+			let isDragMode = false;
+			let draggedObject = null;
+			let raycaster, mouse;
+
+			// Texture loader and texture cache
+			const textureLoader = new THREE.TextureLoader();
+			const textures = {};
+
+			// Real product image URLs (high-quality, free to use)
+			const TEXTURE_URLS = {
+				// iPhone screen - real iOS interface
+				iphoneScreen: 'https://images.unsplash.com/photo-1592286927505-b0c2964a97d4?w=1080&q=95',
+				// MacBook screen - macOS interface
+				macbookScreen: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1920&q=95',
+				// iPad screen - iOS/iPadOS interface
+				ipadScreen: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=1080&q=95',
+				// Cardboard texture for DHL boxes
+				// cardboard: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=1024&q=80',
+				// Book cover texture
+				bookCover: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=1024&q=80',
+				// Water bottle label/texture
+				bottleLabel: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=512&q=80',
+				// iPhone body texture (titanium)
+				iphoneBody: 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=1024&q=90',
+				// MacBook aluminum texture
+				macbookAluminum: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1024&q=90',
+				// DHL A4 Envelope SVG
+				a4Envelope: "data:image/svg+xml,%3csvg%20data-name='Layer%201'%20xmlns='http://www.w3.org/2000/svg'%20width='31'%20height='47'%3e%3cpath%20fill='%23c39000'%20d='M3.2%200h24.6L31%207H0l3.2-7z'/%3e%3cpath%20fill='%23fff'%20d='M1.3%202.2h28.4v40H1.3z'/%3e%3cpath%20d='M29.4%202.4v39.5H1.6V2.4h27.8m.5-.5H1.1v40.5H30l-.1-40.5z'%20fill='%23e6e6e6'/%3e%3cpath%20d='M3.1%205.1h1.8v.5H3.1zM3.1%207.1h.7v.5h-.7zM5.7%205.1h4.2v.5H5.7zM4%207.1h5.9v.5H4zM3.1%206.1h2.5v.5H3.1zM5.7%206.1h1.6v.5H5.7zM7.5%206.1h2.4v.5H7.5z'/%3e%3cpath%20fill='%23fcce09'%20d='M0%207h31v40H0z'/%3e%3cpath%20fill='%23aa7b33'%20opacity='.4'%20style='isolation:isolate'%20d='M3.2%2041.7h24.6L31%2047H0l3.2-5.3z'/%3e%3c/svg%3e",
+				// DHL Shoe Box SVG
+				shoeBox: "data:image/svg+xml,%3csvg%20version='1.1'%20id='Ebene_1'%20xmlns='http://www.w3.org/2000/svg'%20x='0'%20y='0'%20viewBox='0%200%2090%2049'%20xml:space='preserve'%3e%3cstyle%3e.st5{opacity:.4;fill:%23aa7b33;enable-background:new}%3c/style%3e%3cg%20id='Icons'%3e%3clinearGradient%20id='SVGID_1_'%20gradientUnits='userSpaceOnUse'%20x1='19.932'%20y1='2715.466'%20x2='24.056'%20y2='2707.373'%20gradientTransform='translate(0%20-2671.957)'%3e%3cstop%20offset='.269'%20stop-color='%231d1d1b'%20stop-opacity='0'/%3e%3cstop%20offset='.511'%20stop-color='%23181816'%20stop-opacity='.364'/%3e%3cstop%20offset='.817'%20stop-color='%23080807'%20stop-opacity='.825'/%3e%3cstop%20offset='.933'/%3e%3c/linearGradient%3e%3cpath%20opacity='.5'%20fill='url(%23SVGID_1_)'%20d='M24.5%2045.7L39%2043l-19.6-9.7L5%2035.9z'/%3e%3cpath%20id='Shape_22_'%20fill='%23fdde84'%20d='M39%2022.9l46-8.2L65.5%205l-46.1%208.2z'/%3e%3cpath%20id='Shape_21_'%20class='st5'%20d='M31%2018.9l45.9-8.2L73%208.8%2027%2017z'/%3e%3cpath%20id='Shape_20_'%20fill='%23c39000'%20d='M39%2022.9V43l-19.6-9.7V13.2z'/%3e%3cpath%20id='Shape_19_'%20class='st5'%20d='M31%2018.9V29l-4-2V17z'/%3e%3cpath%20id='Shape_18_'%20fill='%23fcce09'%20d='M39%2022.9V43l46-8.2V14.7z'/%3e%3cpath%20id='Shape_17_'%20fill='%23fff'%20d='M54.7%2027.2v10.3l24.4-4.4V22.8z'/%3e%3cpath%20id='Shape_16_'%20d='M68.8%2033.4c1.4-.2%202.8-.5%204.3-.7v-6.9c-1.4.2-2.8.5-4.3.7v6.9z'/%3e%3cpath%20id='Shape_15_'%20d='M57%2035.4c1.3-.2%202.5-.5%203.6-.6v-6.9c-1.3.2-2.5.5-3.6.6v6.9z'/%3e%3cpath%20id='Shape_14_'%20d='M64.6%2034.1l1.8-.3v-6.9l-1.8.3v6.9z'/%3e%3cpath%20id='Shape_13_'%20d='M76.8%2025.1c-.6.1-1.2.2-1.9.3v6.9c.6-.1%201.2-.2%201.9-.3v-6.9z'/%3e%3cpath%20id='Shape_12_'%20d='M62.6%2034.5c.2%200%20.5-.1.7-.1v-5.7c-.2%200-.5.1-.7.1v5.7z'/%3e%3c/g%3e%3c/svg%3e"
+			};
+
+			// Preload textures
+			function loadTextures() {
+				return Promise.all(
+					Object.entries(TEXTURE_URLS).map(([key, url]) => {
+						return new Promise((resolve) => {
+							textureLoader.load(
+								url,
+								(texture) => {
+									texture.encoding = THREE.sRGBEncoding;
+									texture.anisotropy = 16; // Better quality at angles
+									textures[key] = texture;
+									console.log(`✓ Loaded texture: ${key}`);
+									resolve();
+								},
+								undefined,
+								(error) => {
+									console.warn(`✗ Failed to load texture: ${key}`, error);
+									resolve(); // Continue even if texture fails
+								}
+							);
+						});
+					})
+				);
+			}
+
+			const modal = document.getElementById('visualizerModal');
+			const openBtn = document.getElementById('openVisualizerBtn');
+			const closeBtn = document.getElementById('closeModalBtn');
+
+			openBtn.addEventListener('click', async () => {
+				try {
+					modal.classList.add('active');
+					if (!scene) {
+						// Show loading indicator
+						const canvasContainer = document.querySelector('.canvas-container');
+						const originalInstructions = canvasContainer.querySelector('.instructions');
+						canvasContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 18px;">Loading textures...</div>';
+						
+						try {
+							// Load textures first
+							await loadTextures();
+							console.log('All textures loaded successfully');
+						} catch (error) {
+							console.warn('Texture loading error:', error);
+						}
+						
+						// Reset canvas and restore instructions
+						canvasContainer.innerHTML = '<canvas id="visualizer-canvas"></canvas>';
+						if (originalInstructions) {
+							canvasContainer.appendChild(originalInstructions);
+						}
+						
+						setTimeout(() => {
+							try {
+								initThreeJS();
+							} catch (error) {
+								console.error('Three.js initialization error:', error);
+								canvasContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #cc0000; padding: 20px; text-align: center;">Error loading 3D scene. Please refresh and try again.</div>';
+							}
+						}, 100);
+					}
+				} catch (error) {
+					console.error('Button click error:', error);
+					alert('Error opening visualizer. Please check the console for details.');
+				}
+			});
+
+			closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) modal.classList.remove('active');
+			});
+
+			function buildUI() {
+				const boxOptionsEl = document.getElementById('boxOptions');
+				boxOptionsEl.innerHTML = '';
+				
+				BOX_TYPES.forEach(box => {
+					const volume = ((box.width * box.height * box.depth) / 1000).toFixed(1);
+					const option = document.createElement('div');
+					option.className = `box-option ${box.id === selectedBoxId ? 'active' : ''}`;
+					option.innerHTML = `
+						<h4>${box.name}</h4>
+						<p>${box.width} × ${box.height} × ${box.depth} cm</p>
+						<p class="volume">${volume}L volume</p>
+					`;
+					option.addEventListener('click', () => selectBox(box.id));
+					boxOptionsEl.appendChild(option);
+				});
+
+				const refTogglesEl = document.getElementById('referenceToggles');
+				refTogglesEl.innerHTML = '';
+				
+				REFERENCE_OBJECTS.forEach(ref => {
+					const btn = document.createElement('button');
+					btn.className = `toggle-btn ${activeReferences.has(ref.id) ? 'active' : ''}`;
+					btn.textContent = `${ref.label} ${ref.name}`;
+					btn.addEventListener('click', () => toggleReference(ref.id));
+					refTogglesEl.appendChild(btn);
+				});
+
+				document.querySelectorAll('.view-btn').forEach(btn => {
+					btn.addEventListener('click', () => {
+						if (!btn.dataset.view) return; // Skip control buttons
+						document.querySelectorAll('.view-btn').forEach(b => {
+							if (b.dataset.view) b.classList.remove('active');
+						});
+						btn.classList.add('active');
+						changeView(btn.dataset.view);
+					});
+				});
+
+				// Toggle rotation button
+				document.getElementById('toggleRotationBtn').addEventListener('click', (e) => {
+					isRotationEnabled = !isRotationEnabled;
+					e.target.textContent = isRotationEnabled ? '⏸️ Pause Rotation' : '▶️ Resume Rotation';
+					e.target.classList.toggle('active', !isRotationEnabled);
+				});
+
+				// Toggle drag mode button
+				document.getElementById('toggleDragBtn').addEventListener('click', (e) => {
+					isDragMode = !isDragMode;
+					e.target.textContent = isDragMode ? '🎯 Camera Mode' : '🖱️ Drag Objects';
+					e.target.classList.toggle('active', isDragMode);
+					if (isDragMode) {
+						document.querySelector('.canvas-container').style.cursor = 'grab';
+					} else {
+						document.querySelector('.canvas-container').style.cursor = 'default';
+					}
+				});
+
+				updateSizeInfo();
+			}
+
+			function selectBox(boxId) {
+				selectedBoxId = boxId;
+				document.querySelectorAll('.box-option').forEach((el, i) => {
+					el.classList.toggle('active', BOX_TYPES[i].id === boxId);
+				});
+				if (scene) {
+					updateBox();
+					updateSizeInfo();
+				}
+			}
+
+			function toggleReference(refId) {
+				if (activeReferences.has(refId)) {
+					activeReferences.delete(refId);
+				} else {
+					activeReferences.add(refId);
+				}
+				document.querySelectorAll('.toggle-btn').forEach((btn, i) => {
+					btn.classList.toggle('active', activeReferences.has(REFERENCE_OBJECTS[i].id));
+				});
+				if (scene) updateReferences();
+			}
+
+			function updateSizeInfo() {
+				const boxData = BOX_TYPES.find(b => b.id === selectedBoxId);
+				const volume = ((boxData.width * boxData.height * boxData.depth) / 1000).toFixed(1);
+				const surfaceArea = (2 * (boxData.width * boxData.height + boxData.width * boxData.depth + boxData.height * boxData.depth)).toFixed(0);
+				
+				document.getElementById('sizeInfo').innerHTML = `
+					<h4>Box Specifications</h4>
+					<div class="size-stat">
+						<span>Volume:</span>
+						<span>${volume} Liters</span>
+					</div>
+					<div class="size-stat">
+						<span>Surface Area:</span>
+						<span>${surfaceArea} cm²</span>
+					</div>
+					<div class="size-stat">
+						<span>Longest Side:</span>
+						<span>${Math.max(boxData.width, boxData.height, boxData.depth)} cm</span>
+					</div>
+				`;
+			}
+
+			function initThreeJS() {
+				const canvas = document.getElementById('visualizer-canvas');
+				const container = canvas.parentElement;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xe8f4f8); // Soft blue-gray sky
+				scene.fog = new THREE.Fog(0xe8f4f8, 150, 400);
+
+				camera = new THREE.PerspectiveCamera(
+					45,
+					container.clientWidth / container.clientHeight,
+					0.1,
+					1000
+				);
+				camera.position.set(80, 60, 80);
+				camera.lookAt(0, 0, 0);
+
+				renderer = new THREE.WebGLRenderer({ 
+					canvas, 
+					antialias: true,
+					alpha: true,
+					powerPreference: "high-performance"
+				});
+				renderer.setSize(container.clientWidth, container.clientHeight);
+				renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 1.2;
+				renderer.outputEncoding = THREE.sRGBEncoding;
+
+				// Enhanced lighting for photorealism with softer shadows
+				const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+				scene.add(ambientLight);
+
+				const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+				dirLight.position.set(50, 100, 50);
+				dirLight.castShadow = true;
+				dirLight.shadow.mapSize.width = 4096;
+				dirLight.shadow.mapSize.height = 4096;
+				dirLight.shadow.camera.near = 1;
+				dirLight.shadow.camera.far = 250;
+				dirLight.shadow.camera.left = -120;
+				dirLight.shadow.camera.right = 120;
+				dirLight.shadow.camera.top = 120;
+				dirLight.shadow.camera.bottom = -120;
+				dirLight.shadow.bias = -0.0001;
+				dirLight.shadow.radius = 3; // Softer shadows
+				scene.add(dirLight);
+
+				// Secondary light for fill
+				const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+				fillLight.position.set(-50, 50, -50);
+				scene.add(fillLight);
+
+				// Rim light for edge definition
+				const rimLight = new THREE.DirectionalLight(0xffd700, 0.2);
+				rimLight.position.set(-50, 40, -50);
+				scene.add(rimLight);
+
+				// Realistic wood table surface
+				const groundGeo = new THREE.PlaneGeometry(250, 250);
+				
+				// Create wood texture with canvas
+				const woodCanvas = document.createElement('canvas');
+				woodCanvas.width = 512;
+				woodCanvas.height = 512;
+				const woodCtx = woodCanvas.getContext('2d');
+				
+				// Base wood color
+				const gradient = woodCtx.createLinearGradient(0, 0, 512, 512);
+				gradient.addColorStop(0, '#c9a87c');
+				gradient.addColorStop(0.5, '#b8956a');
+				gradient.addColorStop(1, '#a68860');
+				woodCtx.fillStyle = gradient;
+				woodCtx.fillRect(0, 0, 512, 512);
+				
+				// Wood grain lines
+				woodCtx.strokeStyle = 'rgba(101, 67, 33, 0.15)';
+				woodCtx.lineWidth = 1;
+				for (let i = 0; i < 30; i++) {
+					woodCtx.beginPath();
+					woodCtx.moveTo(0, i * 17 + Math.random() * 10);
+					woodCtx.lineTo(512, i * 17 + Math.random() * 10);
+					woodCtx.stroke();
+				}
+				
+				// Add subtle noise
+				for (let i = 0; i < 1000; i++) {
+					const x = Math.random() * 512;
+					const y = Math.random() * 512;
+					const opacity = Math.random() * 0.1;
+					woodCtx.fillStyle = `rgba(101, 67, 33, ${opacity})`;
+					woodCtx.fillRect(x, y, 2, 2);
+				}
+				
+				const woodTexture = new THREE.CanvasTexture(woodCanvas);
+				woodTexture.wrapS = THREE.RepeatWrapping;
+				woodTexture.wrapT = THREE.RepeatWrapping;
+				woodTexture.repeat.set(4, 4);
+				
+				const groundMat = new THREE.MeshStandardMaterial({ 
+					map: woodTexture,
+					color: 0xd4b896,
+					roughness: 0.85,
+					metalness: 0.05
+				});
+				const ground = new THREE.Mesh(groundGeo, groundMat);
+				ground.rotation.x = -Math.PI / 2;
+				ground.receiveShadow = true;
+				scene.add(ground);
+
+				// Subtle grid for depth perception
+				const gridHelper = new THREE.GridHelper(250, 50, 0x8b7355, 0xc9a87c);
+				gridHelper.material.opacity = 0.15;
+				gridHelper.material.transparent = true;
+				gridHelper.position.y = 0.01; // Slightly above ground
+				scene.add(gridHelper);
+
+				// Initialize raycaster for object picking
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
+
+				setupControls(canvas);
+				updateBox();
+				updateReferences();
+				animate();
+
+				window.addEventListener('resize', onWindowResize);
+			}
+
+			function updateBox() {
+				if (currentBox) scene.remove(currentBox);
+
+				const boxData = BOX_TYPES.find(b => b.id === selectedBoxId);
+				currentBox = new THREE.Group();
+				
+				// Skip custom rendering for A4 envelope - use SVG texture
+				if (boxData.id === 'a4' && textures.a4Envelope) {
+					const geometry = new THREE.BoxGeometry(boxData.width, boxData.depth, boxData.height);
+					const material = new THREE.MeshStandardMaterial({
+						map: textures.a4Envelope,
+						roughness: 0.85,
+						metalness: 0.0
+					});
+					const boxMesh = new THREE.Mesh(geometry, material);
+					boxMesh.castShadow = true;
+					boxMesh.receiveShadow = true;
+					currentBox.add(boxMesh);
+					currentBox.position.y = boxData.depth / 2;
+					scene.add(currentBox);
+					return;
+				}
+				
+				// DHL Yellow Box (for book, shoe, moving boxes)
+				const geometry = new THREE.BoxGeometry(boxData.width, boxData.depth, boxData.height);
+				
+				// Main box in DHL Yellow
+				const material = new THREE.MeshStandardMaterial({
+					color: 0xFFCC00, // DHL Yellow
+					roughness: 0.75,
+					metalness: 0.0
+				});
+				
+				const boxMesh = new THREE.Mesh(geometry, material);
+				boxMesh.castShadow = true;
+				boxMesh.receiveShadow = true;
+				currentBox.add(boxMesh);
+				
+				// Red DHL stripe across the middle
+				const stripeGeo = new THREE.BoxGeometry(
+					boxData.width * 1.01,
+					boxData.depth + 0.15,
+					boxData.height * 0.12
+				);
+				const stripeMat = new THREE.MeshStandardMaterial({
+					color: 0xCC0000, // DHL Red
+					roughness: 0.6,
+					metalness: 0.0
+				});
+				const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+				stripe.position.y = 0;
+				stripe.position.z = 0; // Center stripe
+				currentBox.add(stripe);
+				
+				// DHL Logo text simulation (white rectangles on red stripe)
+				const logoW = 2.5;
+				const logoH = boxData.depth + 0.16;
+				const logoD = 2;
+				const logoSpacing = 0.8;
+				const logoStartX = -6;
+				
+				// D
+				const dGeo = new THREE.BoxGeometry(logoW, logoH, logoD);
+				const logoMat = new THREE.MeshStandardMaterial({
+					color: 0xFFFFFF,
+					roughness: 0.4,
+					metalness: 0.0
+				});
+				const dMesh = new THREE.Mesh(dGeo, logoMat);
+				dMesh.position.set(logoStartX, 0, 1);
+				currentBox.add(dMesh);
+				
+				// H
+				const hMesh = new THREE.Mesh(dGeo, logoMat);
+				hMesh.position.set(logoStartX + logoW + logoSpacing, 0, 1);
+				currentBox.add(hMesh);
+				
+				// L
+				const lMesh = new THREE.Mesh(dGeo, logoMat);
+				lMesh.position.set(logoStartX + (logoW + logoSpacing) * 2, 0, 1);
+				currentBox.add(lMesh);
+				
+				// Barcode on front side
+				const barcodeCanvas = document.createElement('canvas');
+				barcodeCanvas.width = 256;
+				barcodeCanvas.height = 128;
+				const barcodeCtx = barcodeCanvas.getContext('2d');
+				
+				// White background
+				barcodeCtx.fillStyle = '#FFFFFF';
+				barcodeCtx.fillRect(0, 0, barcodeCanvas.width, barcodeCanvas.height);
+				
+				// Black barcode lines
+				barcodeCtx.fillStyle = '#000000';
+				const lineWidth = 3;
+				const lineCount = 40;
+				const startX = 20;
+				
+				for (let i = 0; i < lineCount; i++) {
+					const x = startX + i * (lineWidth + 2);
+					const randomHeight = 60 + Math.random() * 20;
+					const y = (barcodeCanvas.height - randomHeight) / 2;
+					barcodeCtx.fillRect(x, y, lineWidth, randomHeight);
+				}
+				
+				// Barcode number text
+				barcodeCtx.fillStyle = '#000000';
+				barcodeCtx.font = 'bold 14px monospace';
+				barcodeCtx.textAlign = 'center';
+				barcodeCtx.fillText('1234567890123', barcodeCanvas.width / 2, barcodeCanvas.height - 15);
+				
+				const barcodeTexture = new THREE.CanvasTexture(barcodeCanvas);
+				barcodeTexture.encoding = THREE.sRGBEncoding;
+				
+				const barcodeGeo = new THREE.BoxGeometry(
+					boxData.width * 0.4,
+					0.05, // Flat barcode
+					boxData.height * 0.15
+				);
+				const barcodeMat = new THREE.MeshStandardMaterial({
+					map: barcodeTexture,
+					roughness: 0.5,
+					metalness: 0.0
+				});
+				const barcode = new THREE.Mesh(barcodeGeo, barcodeMat);
+				barcode.position.set(boxData.width * 0.25, boxData.depth / 2 + 0.025, -boxData.height * 0.35);
+				currentBox.add(barcode);
+				
+				// Shipping label area (white rectangle)
+				const labelGeo = new THREE.BoxGeometry(
+					boxData.width * 0.35,
+					0.05, // Flat label
+					boxData.height * 0.25
+				);
+				const labelMat = new THREE.MeshStandardMaterial({
+					color: 0xFFFFF0,
+					roughness: 0.6,
+					metalness: 0.0
+				});
+				const label = new THREE.Mesh(labelGeo, labelMat);
+				label.position.set(-boxData.width * 0.25, boxData.depth / 2 + 0.025, -boxData.height * 0.3);
+				currentBox.add(label);
+				
+				// Black lines on label (address lines simulation)
+				for (let i = 0; i < 4; i++) {
+					const lineGeo = new THREE.BoxGeometry(
+						boxData.width * 0.28,
+						0.06, // Flat lines
+						0.3
+					);
+					const lineMat = new THREE.MeshStandardMaterial({
+						color: 0x333333,
+						roughness: 0.5
+					});
+					const line = new THREE.Mesh(lineGeo, lineMat);
+					line.position.set(
+						-boxData.width * 0.25,
+						boxData.depth / 2 + 0.03,
+						-boxData.height * 0.35 + i * 1.8
+					);
+					currentBox.add(line);
+				}
+				
+				// Box edges for definition
+				const edges = new THREE.EdgesGeometry(geometry);
+				const lineMat = new THREE.LineBasicMaterial({ 
+					color: 0x886600, 
+					transparent: true,
+					opacity: 0.5
+				});
+				const wireframe = new THREE.LineSegments(edges, lineMat);
+				currentBox.add(wireframe);
+				
+				currentBox.position.y = boxData.depth / 2;
+				scene.add(currentBox);
+			}
+
+			function updateReferences() {
+				Object.values(referenceObjects).forEach(obj => scene.remove(obj));
+				referenceObjects = {};
+
+				const boxData = BOX_TYPES.find(b => b.id === selectedBoxId);
+				let xOffset = boxData.width / 2 + 15;
+
+				activeReferences.forEach(refId => {
+					const refData = REFERENCE_OBJECTS.find(r => r.id === refId);
+					const refGroup = new THREE.Group();
+					
+					if (refData.cylindrical) {
+						// Ultra-realistic water bottle
+					const bodyGeo = new THREE.CylinderGeometry(
+						refData.width / 2, 
+						refData.width / 2 * 1.05, 
+						refData.height - 3, 
+						64
+					);
+					// Solid, high-contrast blue bottle - fully opaque and clearly visible
+					const bodyMat = new THREE.MeshStandardMaterial({
+						color: 0x0088ff,
+						roughness: 0.3,
+						metalness: 0.1
+					});
+					const body = new THREE.Mesh(bodyGeo, bodyMat);
+					body.position.y = 0; // Cylinder is already centered at origin
+					body.castShadow = true;
+					body.receiveShadow = true;
+					refGroup.add(body);
+					
+					// Bottle cap - solid white for high contrast
+					const capGeo = new THREE.CylinderGeometry(
+						refData.width / 2 * 0.75, 
+						refData.width / 2 * 0.8, 
+						3, 
+						32
+					);
+					const capMat = new THREE.MeshStandardMaterial({ 
+						color: 0xffffff, 
+						roughness: 0.4, 
+						metalness: 0.1
+					});
+					const cap = new THREE.Mesh(capGeo, capMat);
+					cap.position.y = (refData.height - 3) / 2 + 1.5; // Position cap at top of bottle body
+					cap.castShadow = true;
+					refGroup.add(cap);					} else {
+						// Ultra-realistic device bodies with real textures
+						const geo = new THREE.BoxGeometry(refData.width, refData.depth, refData.height);
+						
+						// Choose material based on device type
+						let mat;
+						if (refData.bodyMaterial === 'titanium') {
+							// iPhone titanium body with real texture
+							mat = new THREE.MeshPhysicalMaterial({
+								color: refData.color,
+								map: textures.iphoneBody || null,
+								roughness: 0.15,
+								metalness: 0.95,
+								envMapIntensity: refData.envMapIntensity || 1.5,
+								clearcoat: 0.5,
+								clearcoatRoughness: 0.2,
+								reflectivity: 0.9
+							});
+						} else if (refData.bodyMaterial === 'aluminum') {
+							// MacBook/iPad aluminum with real texture
+							mat = new THREE.MeshPhysicalMaterial({
+								color: refData.color,
+								map: textures.macbookAluminum || null,
+								roughness: 0.2,
+								metalness: 0.9,
+								envMapIntensity: refData.envMapIntensity || 1.2,
+								clearcoat: 0.3,
+								clearcoatRoughness: 0.3
+							});
+						} else if (refData.bodyMaterial === 'fabric') {
+							// Book cover with real texture
+							mat = new THREE.MeshStandardMaterial({
+								color: refData.color,
+								map: textures.bookCover || null,
+								roughness: 0.95,
+								metalness: 0.0,
+								bumpScale: 0.05
+							});
+						} else {
+							mat = new THREE.MeshStandardMaterial({
+								color: refData.color,
+								roughness: refData.roughness,
+								metalness: refData.metalness
+							});
+						}
+						
+						const mesh = new THREE.Mesh(geo, mat);
+						mesh.castShadow = true;
+						mesh.receiveShadow = true;
+						refGroup.add(mesh);
+						
+						// Add ultra-realistic screen with real product images
+						if (refData.hasScreen) {
+							const screenInset = refData.id === 'iphone' ? 0.4 : (refData.id === 'tablet' ? 0.8 : 1.2);
+							const screenGeo = new THREE.BoxGeometry(
+								refData.width - screenInset,
+								refData.depth + 0.02,
+								refData.height - screenInset
+							);
+							
+							// Determine which screen texture to use
+							let screenTexture;
+							if (refData.id === 'iphone' && textures.iphoneScreen) {
+								screenTexture = textures.iphoneScreen.clone();
+								screenTexture.needsUpdate = true;
+							} else if (refData.id === 'laptop' && textures.macbookScreen) {
+								screenTexture = textures.macbookScreen.clone();
+								screenTexture.needsUpdate = true;
+							} else if (refData.id === 'tablet' && textures.ipadScreen) {
+								screenTexture = textures.ipadScreen.clone();
+								screenTexture.needsUpdate = true;
+							} else {
+								// Fallback: Create canvas texture with UI elements
+								const canvas = document.createElement('canvas');
+								canvas.width = 512;
+								canvas.height = 1024;
+								const ctx = canvas.getContext('2d');
+								
+								// Helper function for rounded rectangles
+								function drawRoundedRect(ctx, x, y, width, height, radius) {
+									ctx.beginPath();
+									ctx.moveTo(x + radius, y);
+									ctx.lineTo(x + width - radius, y);
+									ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+									ctx.lineTo(x + width, y + height - radius);
+									ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+									ctx.lineTo(x + radius, y + height);
+									ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+									ctx.lineTo(x, y + radius);
+									ctx.quadraticCurveTo(x, y, x + radius, y);
+									ctx.closePath();
+								}
+								
+								// Screen background with gradient
+								const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+								gradient.addColorStop(0, '#1a1a1a');
+								gradient.addColorStop(1, '#0a0a0a');
+								ctx.fillStyle = gradient;
+								ctx.fillRect(0, 0, canvas.width, canvas.height);
+								
+								// Add app icons for realism
+								const iconSize = 80;
+								const iconGap = 20;
+								const startX = 40;
+								const startY = 150;
+								const appColors = ['#FF3B30', '#FF9500', '#FFCC00', '#34C759', '#007AFF', '#5856D6'];
+								
+								for (let row = 0; row < 4; row++) {
+									for (let col = 0; col < 4; col++) {
+										const x = startX + col * (iconSize + iconGap);
+										const y = startY + row * (iconSize + iconGap);
+										
+										// Icon background
+										ctx.fillStyle = appColors[(row * 4 + col) % appColors.length];
+										drawRoundedRect(ctx, x, y, iconSize, iconSize, 15);
+										ctx.fill();
+										
+										// Icon highlight
+										ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+										ctx.beginPath();
+										ctx.arc(x + iconSize * 0.4, y + iconSize * 0.3, iconSize * 0.3, 0, Math.PI * 2);
+										ctx.fill();
+									}
+								}
+								
+								// Add status bar
+								ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+								ctx.font = 'bold 30px -apple-system, sans-serif';
+								ctx.textAlign = 'left';
+								ctx.fillText('9:41', 30, 50);
+								
+								// Signal, wifi, battery icons (simplified)
+								ctx.textAlign = 'right';
+								ctx.fillText('100%', canvas.width - 30, 50);
+								
+								// Dynamic Island for iPhone
+								if (refData.hasDynamicIsland) {
+									ctx.fillStyle = '#000000';
+									drawRoundedRect(ctx, canvas.width / 2 - 60, 10, 120, 35, 20);
+									ctx.fill();
+								}
+								
+								screenTexture = new THREE.CanvasTexture(canvas);
+								screenTexture.encoding = THREE.sRGBEncoding;
+							}
+							
+							const screenMat = new THREE.MeshPhysicalMaterial({
+								map: screenTexture,
+								roughness: 0.05,
+								metalness: 0.1,
+								emissive: 0x1a1a1a,
+								emissiveIntensity: 0.5,
+								envMapIntensity: 0.5,
+								clearcoat: 1.0,
+								clearcoatRoughness: 0.1,
+								reflectivity: 0.9
+							});
+							const screen = new THREE.Mesh(screenGeo, screenMat);
+							screen.position.y = 0.01;
+							refGroup.add(screen);
+						}
+						
+						// Add realistic camera system (iPhone)
+						if (refData.hasCamera) {
+							// Camera module housing
+							const camModuleGeo = new THREE.BoxGeometry(2.8, 0.25, 3.5);
+							const camModuleMat = new THREE.MeshPhysicalMaterial({
+								color: 0x2c2c2e,
+								roughness: 0.2,
+								metalness: 0.9,
+								clearcoat: 0.5
+							});
+							const camModule = new THREE.Mesh(camModuleGeo, camModuleMat);
+							camModule.position.set(-refData.width * 0.22, refData.depth / 2 + 0.12, refData.height * 0.35);
+							camModule.castShadow = true;
+							refGroup.add(camModule);
+							
+							// Camera lenses
+							const lensPositions = [
+								{ x: -0.7, z: 0.9 },
+								{ x: 0.7, z: 0.9 },
+								{ x: -0.7, z: -0.9 }
+							];
+							
+							lensPositions.forEach(pos => {
+								// Lens body
+								const lensGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.15, 32);
+								const lensMat = new THREE.MeshPhysicalMaterial({
+									color: 0x1a1a1a,
+									roughness: 0.1,
+									metalness: 0.9,
+									clearcoat: 1.0
+								});
+								const lens = new THREE.Mesh(lensGeo, lensMat);
+								lens.rotation.x = Math.PI / 2;
+								lens.position.set(
+									-refData.width * 0.22 + pos.x,
+									refData.depth / 2 + 0.2,
+									refData.height * 0.35 + pos.z
+								);
+								lens.castShadow = true;
+								refGroup.add(lens);
+								
+								// Glass element
+								const glassGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.05, 32);
+								const glassMat = new THREE.MeshPhysicalMaterial({
+									color: 0x0a1a2e,
+									roughness: 0.0,
+									metalness: 0.0,
+									transparent: true,
+									opacity: 0.9,
+									transmission: 0.95,
+									thickness: 0.1,
+									envMapIntensity: 2.0,
+									clearcoat: 1.0,
+									reflectivity: 1.0
+								});
+								const glass = new THREE.Mesh(glassGeo, glassMat);
+								glass.rotation.x = Math.PI / 2;
+								glass.position.set(
+									-refData.width * 0.22 + pos.x,
+									refData.depth / 2 + 0.23,
+									refData.height * 0.35 + pos.z
+								);
+								refGroup.add(glass);
+							});
+							
+							// Flash
+							const flashGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.1, 16);
+							const flashMat = new THREE.MeshPhysicalMaterial({
+								color: 0xffeeaa,
+								roughness: 0.1,
+								metalness: 0.0,
+								emissive: 0xffeeaa,
+								emissiveIntensity: 0.5,
+								clearcoat: 1.0
+							});
+							const flash = new THREE.Mesh(flashGeo, flashMat);
+							flash.rotation.x = Math.PI / 2;
+							flash.position.set(
+								-refData.width * 0.22 + 0.7,
+								refData.depth / 2 + 0.2,
+								refData.height * 0.35 - 0.9
+							);
+							refGroup.add(flash);
+						}
+						
+						// Add realistic pages (book)
+						if (refData.hasPages) {
+							// Main page block
+							const pagesGeo = new THREE.BoxGeometry(refData.width - 0.3, refData.depth - 0.6, refData.height - 0.3);
+							const pagesMat = new THREE.MeshPhysicalMaterial({ 
+								color: 0xFFFAF0, 
+								roughness: 0.95,
+								metalness: 0.0
+							});
+							const pages = new THREE.Mesh(pagesGeo, pagesMat);
+							pages.position.x = 0.15;
+							refGroup.add(pages);
+						}
+						
+						// Add realistic keyboard (laptop)
+						if (refData.hasKeyboard) {
+							// Keyboard deck
+							const keyDeckGeo = new THREE.BoxGeometry(refData.width * 0.85, 0.03, refData.height * 0.65);
+							const keyDeckMat = new THREE.MeshPhysicalMaterial({ 
+								color: 0x2a2a2a, 
+								roughness: 0.7,
+								metalness: 0.1
+							});
+							const keyDeck = new THREE.Mesh(keyDeckGeo, keyDeckMat);
+							keyDeck.position.y = refData.depth / 2 + 0.015;
+							keyDeck.position.z = -refData.height * 0.15;
+							refGroup.add(keyDeck);
+							
+							// Individual keys
+							const keySize = 1.2;
+							const keyGap = 0.2;
+							const rows = 6;
+							const cols = 15;
+							const startX = -(cols * (keySize + keyGap)) / 2;
+							const startZ = -(rows * (keySize + keyGap)) / 2 - refData.height * 0.15;
+							
+							for (let row = 0; row < rows; row++) {
+								for (let col = 0; col < cols; col++) {
+									if (Math.random() > 0.15) { // Some keys missing for spacebar, etc
+										const keyGeo = new THREE.BoxGeometry(keySize, 0.1, keySize, 1, 1, 1);
+										const keyMat = new THREE.MeshPhysicalMaterial({
+											color: 0x1a1a1a,
+											roughness: 0.4,
+											metalness: 0.1,
+											clearcoat: 0.3
+										});
+										const key = new THREE.Mesh(keyGeo, keyMat);
+										key.position.set(
+											startX + col * (keySize + keyGap),
+											refData.depth / 2 + 0.065,
+											startZ + row * (keySize + keyGap)
+										);
+										refGroup.add(key);
+									}
+								}
+							}
+							
+							// Trackpad
+							const trackpadGeo = new THREE.BoxGeometry(refData.width * 0.35, 0.02, refData.height * 0.22);
+							const trackpadMat = new THREE.MeshPhysicalMaterial({
+								color: 0x2a2a2a,
+								roughness: 0.2,
+								metalness: 0.1,
+								clearcoat: 0.9,
+								clearcoatRoughness: 0.1
+							});
+							const trackpad = new THREE.Mesh(trackpadGeo, trackpadMat);
+							trackpad.position.y = refData.depth / 2 + 0.02;
+							trackpad.position.z = refData.height * 0.25;
+							refGroup.add(trackpad);
+						}
+						
+						// Add Apple logo (for MacBook/iPad)
+						if (refData.hasAppleLogo) {
+							// Simple apple logo representation
+							const logoGeo = new THREE.CircleGeometry(0.8, 32);
+							const logoMat = new THREE.MeshPhysicalMaterial({
+								color: 0xcccccc,
+								roughness: 0.3,
+								metalness: 0.7,
+								emissive: 0x444444,
+								emissiveIntensity: 0.2
+							});
+							const logo = new THREE.Mesh(logoGeo, logoMat);
+							logo.position.y = -refData.depth / 2 - 0.01;
+							logo.position.z = refData.height * 0.1;
+							logo.rotation.x = Math.PI / 2;
+							refGroup.add(logo);
+						}
+						
+						const edges = new THREE.EdgesGeometry(geo);
+					const lineMat = new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25 });
+					const wireframe = new THREE.LineSegments(edges, lineMat);
+					refGroup.add(wireframe);
+				}
+				
+				// For cylindrical objects (water bottles), use height/2 for proper vertical positioning
+				// For rectangular objects (boxes, books, devices), use depth/2
+				const yPosition = refData.cylindrical ? refData.height / 2 : refData.depth / 2;
+				refGroup.position.set(xOffset, yPosition, 0);
+				refGroup.castShadow = true;
+				refGroup.receiveShadow = true;					scene.add(refGroup);
+					referenceObjects[refId] = refGroup;
+					
+					xOffset += Math.max(refData.width, refData.depth) + 12;
+				});
+			}
+
+			function changeView(view) {
+				const boxData = BOX_TYPES.find(b => b.id === selectedBoxId);
+				const maxDim = Math.max(boxData.width, boxData.height, boxData.depth);
+				const distance = maxDim * 2.5;
+
+				let targetPos;
+				switch(view) {
+					case 'top':
+						targetPos = { x: 0, y: distance, z: 0.1 };
+						break;
+					case 'front':
+						targetPos = { x: 0, y: maxDim * 0.5, z: distance };
+						break;
+					default:
+						targetPos = { x: 80, y: 60, z: 80 };
+				}
+
+				animateCamera(targetPos);
+			}
+
+			function animateCamera(target) {
+				const duration = 800;
+				const start = Date.now();
+				const startPos = { ...camera.position };
+
+				function update() {
+					const elapsed = Date.now() - start;
+					const progress = Math.min(elapsed / duration, 1);
+					const eased = 1 - Math.pow(1 - progress, 3);
+
+					camera.position.x = startPos.x + (target.x - startPos.x) * eased;
+					camera.position.y = startPos.y + (target.y - startPos.y) * eased;
+					camera.position.z = startPos.z + (target.z - startPos.z) * eased;
+					camera.lookAt(0, 0, 0);
+
+					if (progress < 1) requestAnimationFrame(update);
+				}
+				update();
+			}
+
+			function setupControls(canvas) {
+				let isDragging = false;
+				let previousMousePosition = { x: 0, y: 0 };
+				let isRightDrag = false;
+				let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+				let dragOffset = new THREE.Vector3();
+
+				// Get mouse position in normalized device coordinates
+				function updateMousePosition(e) {
+					const rect = canvas.getBoundingClientRect();
+					mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+					mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+				}
+
+				// Check if mouse is over a draggable object
+				function getIntersectedObject(e) {
+					updateMousePosition(e);
+					raycaster.setFromCamera(mouse, camera);
+					
+					const draggableObjects = [];
+					if (currentBox) draggableObjects.push(currentBox);
+					Object.values(referenceObjects).forEach(obj => draggableObjects.push(obj));
+					
+					const intersects = raycaster.intersectObjects(draggableObjects, true);
+					if (intersects.length > 0) {
+						// Find the top-level group
+						let obj = intersects[0].object;
+						while (obj.parent && obj.parent.type !== 'Scene') {
+							obj = obj.parent;
+						}
+						return obj;
+					}
+					return null;
+				}
+
+				canvas.addEventListener('mousedown', (e) => {
+					previousMousePosition = { x: e.clientX, y: e.clientY };
+					
+					if (isDragMode && e.button === 0) {
+						// Object dragging mode
+						draggedObject = getIntersectedObject(e);
+						if (draggedObject) {
+							isDragging = true;
+							canvas.style.cursor = 'grabbing';
+							
+							// Calculate drag offset
+							updateMousePosition(e);
+							raycaster.setFromCamera(mouse, camera);
+							const intersectPoint = new THREE.Vector3();
+							raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+							dragOffset.copy(intersectPoint).sub(draggedObject.position);
+							
+							e.preventDefault();
+							return;
+						}
+					}
+					
+					// Camera control mode
+					isDragging = true;
+					isRightDrag = e.button === 2;
+					e.preventDefault();
+				});
+
+				canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+				canvas.addEventListener('mousemove', (e) => {
+					// Update cursor when hovering over objects in drag mode
+					if (isDragMode && !isDragging) {
+						const hoveredObject = getIntersectedObject(e);
+						canvas.style.cursor = hoveredObject ? 'grab' : 'default';
+					}
+
+					if (!isDragging) return;
+
+					if (isDragMode && draggedObject) {
+						// Drag object
+						updateMousePosition(e);
+						raycaster.setFromCamera(mouse, camera);
+						const intersectPoint = new THREE.Vector3();
+						raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+						draggedObject.position.copy(intersectPoint.sub(dragOffset));
+						draggedObject.position.y = Math.max(draggedObject.position.y, 0.5); // Keep above ground
+					} else {
+						// Camera controls
+						const deltaX = e.clientX - previousMousePosition.x;
+						const deltaY = e.clientY - previousMousePosition.y;
+
+						if (isRightDrag) {
+							const panSpeed = 0.4;
+							camera.position.x -= deltaX * panSpeed;
+							camera.position.z += deltaY * panSpeed;
+						} else {
+							const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+							const angle = Math.atan2(camera.position.z, camera.position.x);
+							
+							camera.position.x = radius * Math.cos(angle - deltaX * 0.008);
+							camera.position.z = radius * Math.sin(angle - deltaX * 0.008);
+							camera.position.y = Math.max(5, camera.position.y + deltaY * 0.3);
+							
+							camera.lookAt(0, 0, 0);
+						}
+					}
+
+					previousMousePosition = { x: e.clientX, y: e.clientY };
+				});
+
+				canvas.addEventListener('mouseup', () => {
+					isDragging = false;
+					draggedObject = null;
+					if (isDragMode) {
+						canvas.style.cursor = 'grab';
+					}
+				});
+
+				canvas.addEventListener('wheel', (e) => {
+					e.preventDefault();
+					const zoomSpeed = 0.05;
+					const direction = e.deltaY > 0 ? 1 : -1;
+					const scale = 1 + direction * zoomSpeed;
+					
+					const minDistance = 20;
+					const currentDistance = Math.sqrt(
+						camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2
+					);
+
+					if (currentDistance * scale > minDistance) {
+						camera.position.x *= scale;
+						camera.position.y *= scale;
+						camera.position.z *= scale;
+					}
+				});
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				
+				// Only rotate if rotation is enabled and not in drag mode
+				if (isRotationEnabled && !isDragMode && currentBox) {
+					currentBox.rotation.y += 0.002;
+				}
+				
+				renderer.render(scene, camera);
+			}
+
+			function onWindowResize() {
+				const container = document.querySelector('.canvas-container');
+				if (!container) return;
+				
+				camera.aspect = container.clientWidth / container.clientHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(container.clientWidth, container.clientHeight);
+			}
+
+			buildUI();
+		});
+	</script>
+</body>
+</html>
